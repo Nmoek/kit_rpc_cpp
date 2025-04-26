@@ -5,8 +5,6 @@ pkg
 
 .vscode/
 
-
-
 bin/*
 
 #ignore all .mod
@@ -25,3 +23,5 @@ bin/*
 *.app
 *.dat
 *.mp4
+
+test_callee

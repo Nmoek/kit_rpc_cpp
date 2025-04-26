@@ -30,7 +30,8 @@ include_directories(
 )
 
 set(EXEC_SRC
-    src/rpc.cpp
+    src/kit_rpc_application.cpp
+    src/rpc_provider.cpp
 )
 
 add_library(kit_rpc SHARED ${EXEC_SRC})
