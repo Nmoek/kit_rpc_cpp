@@ -1,11 +1,13 @@
-#ignore bin dir
-bin
+#ignore build dir
+build
 #ignore pkg dir
 pkg
 
 .vscode/
 
-build
+
+
+bin/*
 
 #ignore all .mod
 **/gen/*.pb*
