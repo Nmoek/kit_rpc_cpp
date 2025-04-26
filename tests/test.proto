@@ -1,0 +1,48 @@
+syntax = "proto3";  // 声明 protobuf的版本
+
+package fixbug;  //相当于c++的namespace
+
+// 生成services服务类 和 rpc方法描述
+option cc_generic_services = true;
+
+message Request {
+    string name = 1;
+    string pwd = 2;
+    bytes addr = 3; // 似乎bytes和string一样
+};
+
+message Error {
+    enum ErrorCode {
+        ERROR = 0;
+        OK = 1;
+    }
+    ErrorCode code = 1;
+    string reson = 2;
+}
+
+
+message Result {
+    int32 id = 1;
+}
+message Response {
+    Error err = 1;
+    string pwd = 2;
+    bool is_online = 3;
+    map<int32, string> qunzu  = 4;
+    repeated Result res = 5;
+};
+
+message CalcRequest {
+    int32 a = 1;
+    int32 b = 2;
+}
+
+message CalcResponse{
+    int32 res = 1;
+}
+
+service CalcServiceRpc {
+
+    rpc Add(CalcRequest) returns(CalcResponse);
+
+};

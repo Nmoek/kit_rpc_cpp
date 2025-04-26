@@ -1,0 +1,25 @@
+#ignore bin dir
+bin
+#ignore pkg dir
+pkg
+
+.vscode/
+
+build
+
+#ignore all .mod
+**/gen/*.pb*
+
+*.so
+*.a
+
+*.mod
+
+*.dat
+*.json
+
+*.exe
+*.out
+*.app
+*.dat
+*.mp4
