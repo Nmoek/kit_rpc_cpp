@@ -14,6 +14,9 @@
 
 using namespace kit_rpc;
 
+// 全局变量存储命令行参数
+static std::vector<char*> sg_args;
+
 class MyRun: public ::google::protobuf::Closure
 {
 public:
@@ -43,7 +46,11 @@ TEST(TestCallee, rpc_init)
 {
     auto& k = KitRpcApplication::GetInstace();
 
-    k.Init(0, nullptr);
+    char *argTmp[sg_args.size()];
+    for(int i = 0 ;i < sg_args.size();++i)
+        argTmp[i] = sg_args[i];
+
+    k.Init(sg_args.size(), argTmp);
 
     Provide p;
     p.notifyService(new UserService);
@@ -53,6 +60,10 @@ TEST(TestCallee, rpc_init)
 
 int main(int argc, char **argv)
 {
+    // 保存所有参数
+    for (int i = 0; i < argc; ++i)
+        sg_args.push_back(argv[i]);
+
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
 }

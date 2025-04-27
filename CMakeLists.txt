@@ -86,7 +86,8 @@ target_link_libraries(test_proto ${LIB_LIB})
 
 # **********************************example**********************************#
 # callee 发布rpc服务方 示例
-add_executable(test_callee example/callee/test_callee.cpp)
+add_executable(test_callee example/callee/test_callee.cpp api/proto/user/gen/user.pb.cc)
+add_dependencies(test_callee ${DEPENDS})
 target_link_directories(test_callee PRIVATE ${EXTERN_LIB_PATH})
 redefine_file_macro(test_callee)   #重定义 __FILE__
 target_link_libraries(test_callee ${LIB_LIB})
