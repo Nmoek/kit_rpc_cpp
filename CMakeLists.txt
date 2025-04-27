@@ -29,13 +29,9 @@ include_directories(
 
 )
 
-set(EXEC_SRC
-    src/kit_rpc_application.cpp
-    src/rpc_provider.cpp
-)
+link_directories(${PROJECT_SOURCE_DIR}/lib)
 
-add_library(kit_rpc SHARED ${EXEC_SRC})
-redefine_file_macro(kit_rpc)   #重定义 __FILE__
+
 
 set(EXTERN_LIB_PATH
     "${PROJECT_SOURCE_DIR}/lib/muduo")
@@ -64,44 +60,43 @@ set(DEPENDS
     kit_rpc
 )
 
-set(SUB_DIR
-    # src
-    example
-)
-
-# 添加子目录路径
-add_subdirectory(${SUB_DIR})
 
 # **********************************tests**********************************#
 # test_rpc 主程序测试 test_rpc
-# add_executable(test_rpc tests/test_rpc.cpp)
-# add_dependencies(test_rpc ${DEPENDS})
-# target_link_directories(test_rpc PRIVATE ${EXTERN_LIB_PATH})
-# redefine_file_macro(test_rpc)   #重定义 __FILE__
-# target_link_libraries(test_rpc ${LIB_LIB})
+add_executable(test_rpc tests/test_rpc.cpp)
+add_dependencies(test_rpc ${DEPENDS})
+target_link_directories(test_rpc PRIVATE ${EXTERN_LIB_PATH})
+redefine_file_macro(test_rpc)   #重定义 __FILE__
+target_link_libraries(test_rpc ${LIB_LIB})
 
-# add_executable(test_muduo tests/test_muduo.cpp)
-# add_dependencies(test_muduo ${DEPENDS})
-# target_link_directories(test_muduo PRIVATE ${EXTERN_LIB_PATH})
-# redefine_file_macro(test_muduo)   #重定义 __FILE__
-# target_link_libraries(test_muduo ${LIB_LIB})
+# moduo库测试
+add_executable(test_muduo tests/test_muduo.cpp)
+add_dependencies(test_muduo ${DEPENDS})
+target_link_directories(test_muduo PRIVATE ${EXTERN_LIB_PATH})
+redefine_file_macro(test_muduo)   #重定义 __FILE__
+target_link_libraries(test_muduo ${LIB_LIB})
 
+# protoc测试
 add_executable(test_proto tests/test_proto.cpp tests/test.pb.cc)
 add_dependencies(test_proto ${DEPENDS})
 target_link_directories(test_proto PRIVATE ${EXTERN_LIB_PATH})
 redefine_file_macro(test_proto)   #重定义 __FILE__
 target_link_libraries(test_proto ${LIB_LIB})
 
+
 # **********************************example**********************************#
-# Tcp Server 实例文件 echo_tcp_server
-# add_executable(echo_tcp_server example/echo_tcp_server.cpp)
-# add_dependencies(echo_tcp_server ${DEPENDS})
-# target_link_libraries(echo_tcp_server ${LIB_LIB})
+# callee 发布rpc服务方 示例
+add_executable(test_callee example/callee/test_callee.cpp)
+target_link_directories(test_callee PRIVATE ${EXTERN_LIB_PATH})
+redefine_file_macro(test_callee)   #重定义 __FILE__
+target_link_libraries(test_callee ${LIB_LIB})
 
 
-
-# **********************************压测例子**********************************#
-
+# 设置可执行文件路径
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+# 设置库输出路径
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+
+# 添加子目录路径
+add_subdirectory(src)
 
