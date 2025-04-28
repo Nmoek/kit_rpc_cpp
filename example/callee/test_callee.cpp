@@ -52,8 +52,11 @@ TEST(TestCallee, rpc_init)
 
     k.Init(sg_args.size(), argTmp);
 
-    Provide p;
-    p.notifyService(new UserService);
+    std::string ip = k.getConfig()->get("rpc_server_ip");
+    uint16_t port = k.getConfig()->get<int>("rpc_server_port");
+    Provide p(ip, port, "UserService");
+
+    p.notifyService(std::shared_ptr<UserService>());
     p.run();
 
 }
