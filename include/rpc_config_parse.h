@@ -23,7 +23,7 @@ public:
     using Ptr = std::shared_ptr<RpcConfigParse>;
     using UPtr = std::unique_ptr<RpcConfigParse>;
 
-    virtual bool parse(const char*, std::unordered_map<std::string, boost::any>&) = 0;
+    virtual bool parse(const std::string &data, std::unordered_map<std::string, boost::any> &config_items) = 0;
 
 };
 
@@ -31,18 +31,14 @@ class IniConfigParse: public RpcConfigParse
 {
 
 public:
-    bool parse(const char*, std::unordered_map<std::string, boost::any>&)
-    {
-        std::cout << "IniConfigParse::parse()" << std::endl;
-        return 1;
-    }
+    bool parse(const std::string &data, std::unordered_map<std::string, boost::any> &config_items);
 
 };
 
 class JsonConfigParse: public RpcConfigParse
 {
 public:
-    bool parse(const char*, std::unordered_map<std::string, boost::any>&)
+    bool parse(const std::string &data, std::unordered_map<std::string, boost::any> &config_items)
     {
         std::cout << "JsonConfigParse::parse()" << std::endl;
         return 1;
@@ -52,7 +48,7 @@ public:
 class YamlConfigParse: public RpcConfigParse
 {
 public:
-    bool parse(const char*, std::unordered_map<std::string, boost::any>&)
+    bool parse(const std::string &data, std::unordered_map<std::string, boost::any> &config_items)
     {
         std::cout << "YamlConfigParse::parse()" << std::endl;
         return 1;

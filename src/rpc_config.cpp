@@ -65,7 +65,6 @@ bool RpcConfig::loadFile()
 
     _configParse = std::move(s_configFileType[_type]());
 
-    //TODO 拿到文件类型
     _f.open(_configFile, std::ios::in | std::ios::binary);
     if(!_f.is_open())
     {
@@ -73,7 +72,6 @@ bool RpcConfig::loadFile()
             << errno << ":" << strerror(errno) << std::endl;
         return false;
     }
-
 
     return true;
 }
@@ -83,34 +81,26 @@ void RpcConfig::loadConfigFromFile()
     if(!_f.is_open())
         return;
 
-    std::string line;
+    // 一次性读取然后解析
+    _f.seekg(0, std::ios::end);
+    int64_t file_size = _f.tellg();
+    _f.seekg(0, std::ios::beg);
 
-
-    /*TODO: 按不同文本格式来解析 这里暂时写死按照顾ini格式 */
-    while(std::getline(_f, line))
+    std::string file_data(file_size, 0);
+    if(!_f.read(file_data.data(), file_size))
     {
-        if(line.size())
-        {
-            //文本解析
-            _configParse->parse(line.data(), _configItem);
-        }
-
-        if(_f.eof() || _f.bad())
-            break;
+        std::cerr << _configFile << " read error!"
+            << errno << ":" << strerror(errno) << std::endl;
+        return;
     }
 
-}
+    if(!_configParse->parse(file_data.data(), _configItem))
+    {
+        std::cerr << "config load fail!" << std::endl;
+        return;
+    }
 
-void RpcConfig::set(const std::string& key, boost::any &val)
-{
-    _configItem[key] = std::move(val);
+    std::cout << _configFile << "parse success! size= " << file_size << std::endl;
 }
-
-boost::any RpcConfig::get(const std::string& key) const
-{
-    auto it = _configItem.find(key);
-    return it == _configItem.end() ? boost::any() : it->second;
-}
-
 
 }   //kit_rpc

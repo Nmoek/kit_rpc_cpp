@@ -46,9 +46,54 @@ public:
 
     void loadConfigFromFile();
 
-    void set(const std::string& key, boost::any &val);
-    boost::any get(const std::string& key) const;
+    template<typename T>
+    void set(const std::string& key, T &&val)
+    {
+        _configItem[key] = std::move(std::forward<T>(val));
+    }
 
+    template<typename T = std::string>
+    T get(const std::string& key) const
+    {
+        auto it = _configItem.find(key);
+        if(it == _configItem.end())
+            return  T();
+
+        // 指针转换 避免抛异常
+        auto p = boost::any_cast<T>(&(it->second));
+        if(!p)  //提取失败
+        {
+            auto p2 = boost::any_cast<std::string>(&(it->second));
+            if(!p2)
+            {
+                std::cerr << "src type is not string!" << std::endl;
+                return T();
+            }
+            // 目前仅支持数字转换
+            // 陷阱: 需要在编译阶段判断的条件 最好都加 constexpr
+            if constexpr (std::is_integral_v<T>)
+            {
+                return static_cast<T>(std::stoi(*p2));
+            }
+            else if constexpr(std::is_floating_point_v<T>)
+            {
+                return static_cast<T>(std::stof(*p2));
+            }
+            else
+            {
+                std::cerr << "data type is invalid!" << std::endl;
+                return T();
+            }
+
+        }
+
+        return *p;
+    }
+
+    auto get(const std::string& key) const
+    {
+        return get<>(key);
+    }
 private:
     RpcConfig::FileType checkFileType();
 
