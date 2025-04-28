@@ -15,8 +15,7 @@ using namespace kit_rpc;
 TEST(TestConfig, load_file)
 {
     RpcConfig c("../default_conf.ini", RpcConfig::INI_FILE);
-    c.loadFile();
-    c.loadConfigFromFile();
+    c.load();
 
     auto val1 = c.get("rpc_server_ip");
     std::cout << "rpc_server_ip" << ":" << val1 << std::endl;

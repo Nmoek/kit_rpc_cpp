@@ -24,13 +24,13 @@ static void ShowArgsHelp()
 
 void KitRpcApplication::Init(int argc, char **argv)
 {
-    std::cout << "KitRpcApplication::Init" << std::endl;
     if(argc < 2)
     {
         ShowArgsHelp();
         exit(-1);
     }
 
+    std::string config_file;
     char c = 0;
     while((c = ::getopt(argc, argv, "i:")) != -1)
     {
@@ -38,22 +38,18 @@ void KitRpcApplication::Init(int argc, char **argv)
         {
             case 'i':
             {
-                std::string config_file = ::optarg;
-
-                std::cout << "config_file= " << config_file << std::endl;
+                config_file = ::optarg;
                 break;
             }
             // 读到非法字符
             case '?':
             {
-                std::cerr << "invalid args" << std::endl;
                 ShowArgsHelp();
                 exit(-1);
             }
             // 读到"-i" 但没有config文件
             case ':':
             {
-                std::cerr << "dont find <configfile>" << std::endl;
                 ShowArgsHelp();
                 exit(-1);
             }
@@ -64,7 +60,10 @@ void KitRpcApplication::Init(int argc, char **argv)
     }
 
     // 读取配置文件并解析
+    _config = std::make_shared<RpcConfig>(config_file, RpcConfig::INI_FILE);
 
+    if(!_config->load())
+        std::cerr << "rpc config load fail!" << std::endl;
 }
 
 KitRpcApplication& KitRpcApplication::GetInstace()
@@ -73,6 +72,16 @@ KitRpcApplication& KitRpcApplication::GetInstace()
     return k;
 }
 
+void KitRpcApplication::setConfig(RpcConfig::Ptr config)
+{
+    _config = config;
+    if(!_config->load())
+        std::cerr << "rpc config load fail!" << std::endl;
+}
 
+RpcConfig::Ptr KitRpcApplication::getConfig() const
+{
+    return _config;
+}
 
 } // kit_rpc

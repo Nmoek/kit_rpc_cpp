@@ -13,6 +13,15 @@
 
 namespace kit_rpc {
 
+static void TrimAllSpace(std::string &s)
+{
+    auto pos = s.find_first_not_of(" ");
+    auto pos2 = s.find_first_of(" ", pos);
+    pos2 = pos2 == -1 ? s.size() : pos2;
+
+    s = s.substr(pos, pos2 - pos);
+}
+
 /************IniConfigParse************* */
 bool IniConfigParse::parse(const std::string &data, std::unordered_map<std::string, boost::any> &config_items)
 {
@@ -45,7 +54,16 @@ bool IniConfigParse::parse(const std::string &data, std::unordered_map<std::stri
             continue;
         }
         auto key = line.substr(0, pos2);
+        if(key.back() == '\n'
+            || key.back() == '\r')
+            key.pop_back();
+        TrimAllSpace(key);
         auto val = line.substr(pos2 + 1);
+        if(val.back() == '\n'
+        || val.back() == '\r')
+            val.pop_back();
+        TrimAllSpace(val);
+
         config_items.insert({key, val});
         line.clear();
     }

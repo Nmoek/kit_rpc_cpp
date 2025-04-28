@@ -23,6 +23,7 @@ namespace kit_rpc {
 class RpcConfig
 {
 public:
+    using Ptr = std::shared_ptr<RpcConfig>;
     using ParseTypeWrap = std::function<RpcConfigParse::UPtr()>;
 
     enum FileType {
@@ -31,6 +32,7 @@ public:
         JSON_FILE      ,
         YAML_FILE      ,
     };
+
 
     RpcConfig(const std::string& file, FileType type);
 
@@ -42,9 +44,7 @@ public:
 
     std::string getFile() const;
 
-    bool loadFile();
-
-    void loadConfigFromFile();
+    bool load();
 
     template<typename T>
     void set(const std::string& key, T &&val)
@@ -95,6 +95,10 @@ public:
         return get<>(key);
     }
 private:
+    bool loadFile();
+
+    bool loadConfigFromFile();
+
     RpcConfig::FileType checkFileType();
 
 public:

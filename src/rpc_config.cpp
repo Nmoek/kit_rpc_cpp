@@ -63,8 +63,6 @@ bool RpcConfig::loadFile()
         return false;
     }
 
-    _configParse = std::move(s_configFileType[_type]());
-
     _f.open(_configFile, std::ios::in | std::ios::binary);
     if(!_f.is_open())
     {
@@ -73,13 +71,15 @@ bool RpcConfig::loadFile()
         return false;
     }
 
+    _configParse = s_configFileType[_type]();
+
     return true;
 }
 
-void RpcConfig::loadConfigFromFile()
+bool RpcConfig::loadConfigFromFile()
 {
     if(!_f.is_open())
-        return;
+        return false;
 
     // 一次性读取然后解析
     _f.seekg(0, std::ios::end);
@@ -91,16 +91,23 @@ void RpcConfig::loadConfigFromFile()
     {
         std::cerr << _configFile << " read error!"
             << errno << ":" << strerror(errno) << std::endl;
-        return;
+        return false;
     }
 
     if(!_configParse->parse(file_data.data(), _configItem))
     {
         std::cerr << "config load fail!" << std::endl;
-        return;
+        return false;
     }
 
-    std::cout << _configFile << "parse success! size= " << file_size << std::endl;
+    std::cout << _configFile << " parse success! size= " << file_size << std::endl;
+
+    return true;
+}
+
+bool RpcConfig::load()
+{
+    return loadFile() ? loadConfigFromFile() : false ;
 }
 
 }   //kit_rpc
