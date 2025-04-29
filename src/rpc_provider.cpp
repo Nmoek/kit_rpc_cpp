@@ -9,6 +9,7 @@
 #include "rpc_provider.h"
 
 #include <thread>
+#include <google/protobuf/descriptor.h>
 
 namespace kit_rpc {
 
@@ -19,12 +20,25 @@ Provide::Provide(const std::string &ip, uint16_t port, const std::string& name)
 }
 
 /**
-* @brief 注册rpc方法
+* @brief 注册rpc服务+方法
 * @param[in] service
 */
 void Provide::notifyService(GPServicePtr service)
 {
-    _service = service;
+    ServiceInfo service_info;
+    service_info._service = service;
+
+    const gp::ServiceDescriptor* describtor = service->GetDescriptor();
+
+    auto service_name = describtor->name();
+    for(int i = 0;i < describtor->method_count();++i)
+    {
+        auto method_name = describtor->method(i)->name();
+        service_info._methodsMap.insert({method_name, describtor->method(i)});
+    }
+
+    _servicesMap.insert({service_name, service_info});
+
 }
 /**
 * @brief 执行rpc方法

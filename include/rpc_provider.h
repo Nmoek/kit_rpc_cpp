@@ -35,6 +35,8 @@ public:
      */
     void notifyService(GPServicePtr service);
 
+    // void notifyService(gp::Service* service);
+
     /**
      * @brief 开始对外发布rpc方法
      */
@@ -56,12 +58,22 @@ private:
     void onMessage(const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::muduo::Timestamp time_stamp);
 
 private:
-    /// @brief 待注册rpc服务
-    GPServicePtr _service;
+
     /// @brief 事件循环句柄
     mn::EventLoop _loop;
     /// @brief muduo tcp服务器
     MNTcpServerUPtr _server;
+    /// @brief 服务对象信息
+    struct ServiceInfo
+    {
+        /// @brief 已注册rpc服务对象
+        GPServicePtr _service;
+        /// @brief 服务对象中包含的方法对象
+        std::unordered_map<std::string, const gp::MethodDescriptor* > _methodsMap;
+    };
+    /// @brief 服务对象信息映射表
+    std::unordered_map<std::string, ServiceInfo> _servicesMap;
+
 };
 
 
