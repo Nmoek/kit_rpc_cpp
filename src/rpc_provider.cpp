@@ -56,8 +56,6 @@ void Provide::run()
     });
 
 
-    std::cout << "server start: " << _server->ipPort() << std::endl;
-
     _server->start();
     _loop.loop();
 }
@@ -82,7 +80,6 @@ void Provide::onMessage(const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::
 
     std::string data = buffer->retrieveAllAsString();
 
-    std::cout << "Provide::onMessage start, buffer size " << data.size() << std::endl;
     uint32_t len = 0;
     while(len < data.size())
     {
@@ -112,8 +109,6 @@ void Provide::onMessage(const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::
         {
             data.copy(args_str.data(), args_size, len);
             len += args_size;
-            std::cout << "args_str: " << args_str << std::endl;
-
         }
 
         handleRpcRequest(conn, head, args_str);
