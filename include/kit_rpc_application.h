@@ -14,6 +14,7 @@
 #include "rpc_provider.h"
 #include "rpc_channel.h"
 #include "rpc_controller.h"
+#include "logger.h"
 
 namespace kit_rpc {
 

@@ -63,7 +63,14 @@ void KitRpcApplication::Init(int argc, char **argv)
     _config = std::make_shared<RpcConfig>(config_file, RpcConfig::INI_FILE);
 
     if(!_config->load())
-        std::cerr << "rpc config load fail!" << std::endl;
+    {
+        std::cerr << "rpc config load fail! \n" << std::endl;
+        exit(-1);
+    }
+
+    // 初始化日志路径
+    auto log_path = _config->get("log_dir");
+    LOGGER().setPath(log_path.size() ? log_path : "../log/");
 }
 
 KitRpcApplication& KitRpcApplication::GetInstace()
@@ -76,7 +83,7 @@ void KitRpcApplication::setConfig(RpcConfig::Ptr config)
 {
     _config = config;
     if(!_config->load())
-        std::cerr << "rpc config load fail!" << std::endl;
+        RPC_ERR("rpc config load fail! \n");
 }
 
 RpcConfig::Ptr KitRpcApplication::getConfig() const

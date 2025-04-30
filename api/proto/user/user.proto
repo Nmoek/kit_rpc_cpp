@@ -1,3 +1,4 @@
+// 举例UserSerive如何发布、调用
 syntax = "proto3";
 
 package kit_rpc;
@@ -22,7 +23,19 @@ message LoginResponse
     bool success = 2;
 }
 
+message LogOutRequest
+{
+    bytes name = 1;
+}
+
+message LogOutResponse
+{
+    ResultCode result = 1;
+    bool success = 2;
+}
+
 service UserServiceRpc
 {
     rpc Login(LoginRequest) returns(LoginResponse);
+    rpc LogOut(LogOutRequest) returns(LogOutResponse);
 }

@@ -57,12 +57,15 @@ bool IniConfigParse::parse(const std::string &data, std::unordered_map<std::stri
         if(key.back() == '\n'
             || key.back() == '\r')
             key.pop_back();
+        if(key.empty())
+            continue;
         TrimAllSpace(key);
         auto val = line.substr(pos2 + 1);
         if(val.back() == '\n'
         || val.back() == '\r')
             val.pop_back();
-        TrimAllSpace(val);
+        if(!val.empty())
+            TrimAllSpace(val);
 
         config_items.insert({key, val});
         line.clear();

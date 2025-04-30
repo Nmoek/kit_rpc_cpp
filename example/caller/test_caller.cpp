@@ -147,7 +147,8 @@ TEST(TestCaller, sendReq)
 
     if(controller.Failed())
     {
-        std::cerr << "stub.Login error: " << controller.ErrorText() << std::endl;
+        RPC_ERR("stub.Login error: %s \n", controller.ErrorText().c_str());
+
         return;
     }
 
@@ -159,6 +160,33 @@ TEST(TestCaller, sendReq)
     std::cout << "errcode: " << resp.result().errcode() << std::endl;
     std::cout << "errmsg: " << resp.result().errmsg() << std::endl;
     std::cout << "success: " << resp.success() << std::endl;
+
+    std::cout << "<<<<<<<<<<<<<<<<<<<" << std::endl;
+    // 请求参数
+    kit_rpc::LogOutRequest req2;
+    req2.set_name("abcdef");
+    // 响应数据
+    kit_rpc::LogOutResponse resp2;
+
+    controller.Reset();
+    UserServiceRpc_Stub stub2(new KitRpcChannel);
+    stub.LogOut(&controller, &req2, &resp2, done);
+
+    if(controller.Failed())
+    {
+        RPC_ERR("stub.LogOut error: %s \n", controller.ErrorText().c_str());
+        return;
+    }
+
+    EXPECT_EQ(resp2.result().errcode(), 11);
+    EXPECT_EQ(resp2.result().errmsg(), "LogOut Faild");
+    EXPECT_EQ(resp2.success(), false);
+
+    std::cout << "==========RPC Request OK ===========" << std::endl;
+    std::cout << "errcode: " << resp2.result().errcode() << std::endl;
+    std::cout << "errmsg: " << resp2.result().errmsg() << std::endl;
+    std::cout << "success: " << resp2.success() << std::endl;
+
 }
 
 int main(int argc, char **argv)

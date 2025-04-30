@@ -1,5 +1,8 @@
 
 aux_source_directory(. KIT_RPC_SRC)
+aux_source_directory(./log KIT_LOG_SRC)
+list(APPEND KIT_RPC_SRC ${KIT_LOG_SRC})
+
 aux_source_directory(${PROJECT_SOURCE_DIR}/api/proto/common/gen/ KIT_PROTO_SRC)
 
 add_library(kit_rpc ${KIT_RPC_SRC} ${KIT_PROTO_SRC})

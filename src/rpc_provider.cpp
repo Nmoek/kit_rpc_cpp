@@ -7,9 +7,10 @@
  * @copyright Copyright (c) 2025 Kewin Li
  */
 #include "rpc_provider.h"
-
+#include "logger.h"
 #include <thread>
 #include <google/protobuf/descriptor.h>
+
 
 namespace kit_rpc {
 
@@ -38,7 +39,6 @@ void Provide::notifyService(GPServicePtr service)
     }
 
     _servicesMap.insert({service_name, service_info});
-
 }
 /**
 * @brief 执行rpc方法
@@ -52,19 +52,24 @@ void Provide::run()
     _server->setMessageCallback(std::bind(&Provide::onMessage, this, std::placeholders::_1, std::placeholders::_2,std::placeholders::_3));
 
     _server->setWriteCompleteCallback([](const mn::TcpConnectionPtr& conn){
-        std::cout << "resp ==> " << conn->peerAddress().toIpPort() << " send ok" << std::endl;
+        RPC_INFO("resp ==> %s send ok \n", conn->peerAddress().toIpPort().c_str());
     });
 
 
     _server->start();
+    for(auto &it : _servicesMap)
+    {
+        RPC_INFO("%s server start!\n", it.second._service->GetDescriptor()->name().c_str());
+        for(auto &m :  it.second._methodsMap)
+        RPC_INFO("\t\t ===>%s \n", m.second->full_name().c_str());
+    }
     _loop.loop();
 }
 
 
 void Provide::onConnection(const mn::TcpConnectionPtr& conn)
 {
-    std::cout << "Provide::onConnection status change: " << conn->peerAddress().toIpPort() << std::endl;
-
+    RPC_INFO("Provide::onConnection status change: %s \n", conn->peerAddress().toIpPort().c_str());
 }
 
 
@@ -94,14 +99,9 @@ void Provide::onMessage(const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::
         RpcHeader head;
         if(!head.ParseFromString(head_str))
         {
-            std::cerr << "parse rpc header error! header_size= " << header_size << std::endl;
+            RPC_ERR("parse rpc header error! header_size= %u \n", header_size);
             return;
         }
-
-        std::cout << "=================parse success=================" << std::endl;
-        std::cout << "service_name: " << head.service_name() << std::endl;
-        std::cout << "method_name: " << head.method_name() << std::endl;
-        std::cout << "args_size: " << head.args_size() << std::endl;
 
         uint32_t args_size = head.args_size();
         std::string args_str(args_size, 0);
@@ -125,7 +125,7 @@ void Provide::handleRpcRequest(const mn::TcpConnectionPtr& conn, const RpcHeader
     auto sit = _servicesMap.find(head.service_name());
     if(sit == _servicesMap.end())
     {
-        std::cout << head.service_name() << " dont exist!" << std::endl;
+        RPC_ERR("%s dont exist!\n", head.service_name().c_str());
         return;
     }
     auto service_info = sit->second;
@@ -133,7 +133,7 @@ void Provide::handleRpcRequest(const mn::TcpConnectionPtr& conn, const RpcHeader
 
     if(mit == service_info._methodsMap.end())
     {
-        std::cout << head.service_name() << ":" <<head.method_name() << " dont exist!" << std::endl;
+        RPC_ERR("%s.%s dont exist!\n", head.service_name().c_str(), head.method_name().c_str());
         return;
     }
     GPServicePtr service = service_info._service;
@@ -148,7 +148,7 @@ void Provide::handleRpcRequest(const mn::TcpConnectionPtr& conn, const RpcHeader
 
     if(!request->ParseFromString(args_str))
     {
-        std::cout <<  head.service_name() << ":" << head.method_name() <<" request parse error" << std::endl;
+        RPC_ERR("%s.%s args parse error!\n", head.service_name().c_str(), head.method_name().c_str());
         return;
     }
 
@@ -163,7 +163,7 @@ void Provide::sendRpcResponse(const mn::TcpConnectionPtr& conn, gp::Message * re
     std::string resp_str;
     if(!response->SerializePartialToString(&resp_str))
     {
-        std::cerr << "Serialize Response error!" << std::endl;
+        RPC_ERR("Serialize Response error!\n");
     }
     else
     {

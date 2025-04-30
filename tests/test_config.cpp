@@ -34,6 +34,9 @@ TEST(TestConfig, load_file)
 
     auto val6  = c.get<float>("bbb");
     std::cout << "bbb" << ":" << val6 << std::endl;
+
+    auto val7  = c.get("log_dir");
+    std::cout << "log_dir" << ":" << val7 << std::endl;
 }
 
 int main(int argc, char **argv)

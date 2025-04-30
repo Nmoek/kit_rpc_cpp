@@ -11,6 +11,7 @@
 
 #include "user.pb.h"
 
+namespace gp = ::google::protobuf;
 
 /**
  * @brief 对外提供UserService
@@ -26,10 +27,19 @@ public:
         return true;
     }
 
-    void Login(::google::protobuf::RpcController* controller,
+    bool LogOut(std::string name)
+    {
+        std::cout << "local LogOut service ...." << std::endl;
+        std::cout << "name= " << name << std::endl;
+
+        return false;
+    }
+
+    void Login(
+        ::gp::RpcController* controller,
         const ::kit_rpc::LoginRequest* request,
         ::kit_rpc::LoginResponse* response,
-        ::google::protobuf::Closure* done)
+        ::gp::Closure* done)
     {
         std::cout << "rpc Login service ...." << std::endl;
 
@@ -48,5 +58,26 @@ public:
             done->Run();
     }
 
+    virtual void LogOut(
+        ::gp::RpcController* controller,
+        const ::kit_rpc::LogOutRequest* request,
+        ::kit_rpc::LogOutResponse* response,
+        ::gp::Closure* done)
+    {
+        std::cout << "rpc LogOut service ...." << std::endl;
+
+        std::string name = request->name();
+
+        bool success = LogOut(name);
+
+        auto result = response->mutable_result();
+        result->set_errcode(11);
+        result->set_errmsg("LogOut Faild");
+        response->set_success(success);
+
+        // protobuf回调函数
+        if(done)
+            done->Run();
+    }
 
 };

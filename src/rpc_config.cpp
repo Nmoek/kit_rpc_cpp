@@ -7,6 +7,8 @@
  * @copyright Copyright (c) 2025 Kewin Li
  */
 #include "rpc_config.h"
+#include "logger.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -59,15 +61,14 @@ bool RpcConfig::loadFile()
     // 判断是否是支持的文件类型 ini、json、yaml
     if(UNKNOW_FILE >= _type || _type > YAML_FILE)
     {
-        std::cerr << "file type is invalid!" << std::endl;
+        RPC_ERR("file type is invalid! \n");
         return false;
     }
 
     _f.open(_configFile, std::ios::in | std::ios::binary);
     if(!_f.is_open())
     {
-        std::cerr << _configFile << " open error, "
-            << errno << ":" << strerror(errno) << std::endl;
+        RPC_ERR("%s open error! %d:%s \n", _configFile.c_str(), errno, strerror(errno));
         return false;
     }
 
@@ -89,18 +90,17 @@ bool RpcConfig::loadConfigFromFile()
     std::string file_data(file_size, 0);
     if(!_f.read(file_data.data(), file_size))
     {
-        std::cerr << _configFile << " read error!"
-            << errno << ":" << strerror(errno) << std::endl;
+        RPC_ERR("%s open error! %d:%s \n", _configFile.c_str(), errno, strerror(errno));
         return false;
     }
 
     if(!_configParse->parse(file_data.data(), _configItem))
     {
-        std::cerr << "config load fail!" << std::endl;
+        RPC_ERR("config load fail! \n");
         return false;
     }
 
-    std::cout << _configFile << " parse success! size= " << file_size << std::endl;
+    RPC_INFO("%s parse success! size= %ld \n", _configFile.c_str(), file_size);
 
     return true;
 }
