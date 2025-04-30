@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string>
 
-#include "proto/user/gen/user.pb.h"
+#include "user.pb.h"
 
 
 /**
@@ -44,7 +44,8 @@ public:
         response->set_success(success);
 
         // protobuf回调函数
-        done->Run();
+        if(done)
+            done->Run();
     }
 
 

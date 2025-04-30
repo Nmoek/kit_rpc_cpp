@@ -13,6 +13,9 @@
 #include "muduo/net/TcpServer.h"
 #include "muduo/base/Logging.h"
 #include "muduo/net/EventLoop.h"
+#include "rpc_header.pb.h"
+
+#include <unordered_map>
 
 namespace kit_rpc {
 
@@ -56,6 +59,20 @@ private:
      * @param time_stamp
      */
     void onMessage(const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::muduo::Timestamp time_stamp);
+
+    /**
+     * @brief 处理rpc请求调用
+     * @param[in] head
+     * @param[in] args_str
+     */
+    void handleRpcRequest(const mn::TcpConnectionPtr& conn, const RpcHeader head, const std::string args_str);
+
+    /**
+     * @brief rpc执行完毕回发响应回调
+     * @param[in] conn
+     * @param[in] message
+     */
+    void sendRpcResponse(const mn::TcpConnectionPtr& conn, gp::Message *response);
 
 private:
 
