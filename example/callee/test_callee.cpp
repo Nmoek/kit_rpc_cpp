@@ -10,7 +10,7 @@
 
 #include "userservice.h"
 #include "kit_rpc_application.h"
-#include "rpc_provider.h"
+
 
 using namespace kit_rpc;
 

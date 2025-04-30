@@ -11,6 +11,9 @@
 #define __KIT_RPC_APPLICATION_H__
 
 #include "rpc_config.h"
+#include "rpc_provider.h"
+#include "rpc_channel.h"
+#include "rpc_controller.h"
 
 namespace kit_rpc {
 

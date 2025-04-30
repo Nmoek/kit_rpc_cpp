@@ -21,8 +21,6 @@ namespace mn = ::muduo::net;
 
 namespace kit_rpc {
 
-
-
 void KitRpcChannel::CallMethod(
         const gp::MethodDescriptor* method,
         gp::RpcController* controller,
@@ -37,7 +35,7 @@ void KitRpcChannel::CallMethod(
 
     if(!request->SerializePartialToString(&args_str))
     {
-        std::cerr << "request->SerializePartialToString error" << std::endl;
+        controller->SetFailed("request->SerializePartialToString error");
         return;
     }
     uint32_t args_size = (uint32_t)args_str.size();
@@ -51,7 +49,7 @@ void KitRpcChannel::CallMethod(
     std::string head_str;
     if(!header.SerializePartialToString(&head_str))
     {
-        std::cerr << "req.SerializePartialToString error" << std::endl;
+        controller->SetFailed("req.SerializePartialToString error");
         return;
     }
     uint32_t header_size = (uint32_t)head_str.size();
@@ -88,12 +86,11 @@ void KitRpcChannel::CallMethod(
     });
 
     // rpc 响应
-    client.setMessageCallback([response](const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::muduo::Timestamp time_stamp){
+    client.setMessageCallback([response, controller](const mn::TcpConnectionPtr& conn, mn::Buffer* buffer, ::muduo::Timestamp time_stamp){
 
         if(!response->ParseFromString(buffer->retrieveAllAsString().data()))
         {
-            std::cerr << "LoginResponse parse error" << std::endl;
-            return;
+            controller->SetFailed("response->ParseFromString error");
         }
         conn->shutdown();
     });

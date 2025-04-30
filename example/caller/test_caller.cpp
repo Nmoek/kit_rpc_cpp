@@ -10,7 +10,6 @@
 #include "rpc_header.pb.h"
 #include "user.pb.h"
 #include "kit_rpc_application.h"
-#include "rpc_channel.h"
 #include "user.pb.h"
 
 #include <fstream>
@@ -140,10 +139,17 @@ TEST(TestCaller, sendReq)
     kit_rpc::LoginResponse resp;
     // 回调函数
     gp::Closure* done = nullptr;
-
+    // rpc调用过程控制
+    KitRpcController controller;
     // 同步发起调用
     UserServiceRpc_Stub stub(new KitRpcChannel);
-    stub.Login(nullptr, &req, &resp, done);
+    stub.Login(&controller, &req, &resp, done);
+
+    if(controller.Failed())
+    {
+        std::cerr << "stub.Login error: " << controller.ErrorText() << std::endl;
+        return;
+    }
 
     EXPECT_EQ(resp.result().errcode(), 0);
     EXPECT_EQ(resp.result().errmsg(), "Login OK");
