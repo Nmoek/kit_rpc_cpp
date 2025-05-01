@@ -12,6 +12,7 @@
 #include "muduo/base/Logging.h"
 #include "muduo/net/EventLoop.h"
 #include "kit_rpc_application.h"
+#include "zookeeper_cli.h"
 
 #include <google/protobuf/descriptor.h>
 #include <iostream>
@@ -65,9 +66,32 @@ void KitRpcChannel::CallMethod(
     len += args_size;
 
     // 调客户端开始发数据
-    auto& k = KitRpcApplication:: GetInstace();
-    std::string target_server_ip = k.getConfig()->get("rpc_server_ip");
-    uint16_t target_server_port = k.getConfig()->get<int>("rpc_server_port");
+    // auto& k = KitRpcApplication:: GetInstace();
+    // std::string target_server_ip = k.getConfig()->get("rpc_server_ip");
+    // uint16_t target_server_port = k.getConfig()->get<int>("rpc_server_port");
+
+    //向Zookeeper查询服务在哪
+    ZkClient cli;
+    cli.start();
+    std::string path = "/";
+    path += service_name;
+    path += "/";
+    path += method_name;
+
+    std::string host = cli.getNodeData(path);
+    if(host.empty())
+    {
+        controller->SetFailed("zookeeper get ip/port is null");
+        return;
+    }
+    auto pos = host.find(":");
+    if(-1 == pos)
+    {
+        controller->SetFailed("zookeeper get ip/port is invalid");
+        return;
+    }
+    std::string target_server_ip = host.substr(0, pos);
+    uint16_t target_server_port = std::stoi(host.substr(pos + 1));
 
     mn::EventLoop loop;
     mn::InetAddress addr(target_server_ip, target_server_port);

@@ -8,6 +8,9 @@
  */
 #include "rpc_provider.h"
 #include "logger.h"
+#include "zookeeper_cli.h"
+#include "kit_rpc_application.h"
+
 #include <thread>
 #include <google/protobuf/descriptor.h>
 
@@ -55,14 +58,41 @@ void Provide::run()
         RPC_INFO("resp ==> %s send ok \n", conn->peerAddress().toIpPort().c_str());
     });
 
+    //获取本地ip
+    auto &k = KitRpcApplication::GetInstace();
+    std::string host = k.getConfig()->get("rpc_server_ip");
+    host += ":";
+    host += k.getConfig()->get("rpc_server_port");
 
-    _server->start();
+    //当前本地服务全部注册到Zookeeper
+    ZkClient cli;
+    cli.start();
     for(auto &it : _servicesMap)
     {
-        RPC_INFO("%s server start!\n", it.second._service->GetDescriptor()->name().c_str());
+        std::string path = "/";
+        auto service =  it.second._service;
+        RPC_INFO("%s server start!\n", service->GetDescriptor()->name().c_str());
+
+        path += service->GetDescriptor()->name();
+        if(!cli.createNode(path, ""))  //永久性节点 且无数据
+        {
+            RPC_ERR("zookeeper createNode error\n");
+        }
         for(auto &m :  it.second._methodsMap)
-        RPC_INFO("\t\t ===>%s \n", m.second->full_name().c_str());
+        {
+            std::string node_path = path;
+            node_path += "/";
+            node_path += m.second->name();
+            if(!cli.createNode(node_path, host, ZOO_EPHEMERAL))// 临时性节点  存储发布服务的ip:port
+            {
+                RPC_ERR("zookeeper createNode error\n");
+            }
+            RPC_INFO("\t\t ===>%s \n", m.second->full_name().c_str());
+        }
+
     }
+
+    _server->start();
     _loop.loop();
 }
 
