@@ -29,6 +29,7 @@ include_directories(
     include
     ${PROJECT_SOURCE_DIR}/include/
     ${PROJECT_SOURCE_DIR}/include/log/
+    ${PROJECT_SOURCE_DIR}/include/zookeeper/
     ${PROJECT_SOURCE_DIR}/api/proto/user/gen/
     ${PROJECT_SOURCE_DIR}/api/proto/common/gen/
 )
@@ -41,7 +42,8 @@ link_directories(
 
 
 set(EXTERN_LIB_PATH
-    "${PROJECT_SOURCE_DIR}/lib/muduo")
+    "${PROJECT_SOURCE_DIR}/lib/muduo/"
+    "/use/local/lib/")
 
 set(MUDUO_LIB
     muduo_net
@@ -104,7 +106,16 @@ if(RPC_TEST)
     target_link_directories(test_log PRIVATE ${EXTERN_LIB_PATH})
     redefine_file_macro(test_log)   #重定义 __FILE__
     target_link_libraries(test_log ${LIB_LIB})
+
+    # zk客户端测试
+    add_executable(test_zoo tests/test_zoo.cpp)
+    add_dependencies(test_zoo ${DEPENDS})
+    target_link_directories(test_zoo PRIVATE ${EXTERN_LIB_PATH})
+    redefine_file_macro(test_zoo)   #重定义 __FILE__
+    target_link_libraries(test_zoo ${LIB_LIB})
 endif()
+
+
 # **********************************example**********************************#
 # callee 发布rpc服务方 示例
 add_executable(test_callee example/callee/test_callee.cpp api/proto/user/gen/user.pb.cc)

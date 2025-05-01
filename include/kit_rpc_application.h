@@ -51,6 +51,8 @@ private:
 private:
     /// @brief rpc配置管理
     RpcConfig::Ptr _config;
+    /// @brief 是否初始化
+    bool _isInit;
 
 };
 

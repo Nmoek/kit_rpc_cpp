@@ -71,6 +71,7 @@ void KitRpcApplication::Init(int argc, char **argv)
     // 初始化日志路径
     auto log_path = _config->get("log_dir");
     LOGGER().setPath(log_path.size() ? log_path : "../log/");
+    _isInit = true;
 }
 
 KitRpcApplication& KitRpcApplication::GetInstace()
@@ -81,6 +82,8 @@ KitRpcApplication& KitRpcApplication::GetInstace()
 
 void KitRpcApplication::setConfig(RpcConfig::Ptr config)
 {
+    if(!_isInit)
+        return;
     _config = config;
     if(!_config->load())
         RPC_ERR("rpc config load fail! \n");
@@ -88,6 +91,8 @@ void KitRpcApplication::setConfig(RpcConfig::Ptr config)
 
 RpcConfig::Ptr KitRpcApplication::getConfig() const
 {
+    if(!_isInit)
+        return nullptr;
     return _config;
 }
 
